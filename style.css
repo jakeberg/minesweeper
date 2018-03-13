@@ -1,11 +1,33 @@
 html {
-
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-body {
+body {}
 
+header {
+    font-size: 200%;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 20px;
 }
-
 main {
+    width: 360px;
+    margin: auto;
+}
 
+.bomb {
+    width: 40px;
+    height: 40px;
+    background-image: url("assets/bomb.jpg");
+    background-size: 100%;
+}
+
+.tile {
+    width: 30px;
+    height: 30px;
+    box-shadow: 2px;
+    background-color: grey;
+    border-radius: 2px;
+    border-style: outset;
+    border-width: 5px;
 }
