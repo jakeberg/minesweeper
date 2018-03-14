@@ -1,47 +1,42 @@
 const main = document.querySelector("main");
+const tileImages = ["assets/tile.jpg", "assets/tileEmpty.jpg", "assets/bomb.jpg"];
 
-var flipCounter = [0, 0];
+function CreateGameBoard(frame_images, target_div, x, y) {
+    this.images = frame_images;
+    this.frame = 1;
+    this.img = document.createElement("img");
+    this.img.src = this.images[0];
+    this.img.style.position = "absolute";
+    this.img.style.width = "50px";
+    this.img.style.height = "50px";
+    this.img.style.left = x + "px";
+    this.img.style.top = y + "px";
 
-var board = {
+    target_div.appendChild(this.img);
+
+
+    //
+    var clickedImage = this.img;
+    var newImage = this.images;
+    var newFrameCount = this.frame;
     
-    state: 0,
-    flip: function () {
-        // randomly set this.state to be either 0 or 1
-        this.state = Math.round(Math.random() * 3);
-    },
-    toString: function () {
-        // return “H” or “T” depending on whether this.state is 0 or 1
-        if (this.state == 0) {
-            return "B"
-        };
-        if (this.state == 1 || this.state == 2 || this.state == 3) {
-            return "O"
-        };
-    },
-    toHTML: function () {
-        // set the properties of the image element to show either heads or tails
-        var img = document.createElement("img");
-        if (this.toString() == "B") {
-            img.classList = ("bomb");
-            flipCounter[this.state] += 1;
-        } else if (this.toString() == "O") {
-            img.classList = ("tile");
-            flipCounter[this.state] += 1;
+    this.tileSelection = function () {
+        if (newFrameCount < 2) {
+            clickedImage.src = newImage[newFrameCount];
+            newFrameCount++;
         }
-        main.appendChild(img);
-        return img;
     }
-};
 
-for (i = 0; i <= 8; i++) {
-    for (j = 0; j <= 8; j++) {
-        board.flip();
-        board.toString();
-        board.toHTML();
+    this.img.addEventListener("click", this.tileSelection);
+
+
+}
+
+for (let i = 0; i < 10; i++) {
+    for (let j = 0; j < 10; j++) {
+        var x = i * 50;
+        var y = j * 50;
+        var board = new CreateGameBoard(tileImages, main, x, y);
     }
 }
 
-let newDiv = document.createElement("div");
-var newText = document.createTextNode("Bombs: " + flipCounter[0] + " / Open spaces: " + flipCounter[1]);
-newDiv.appendChild(newText);
-main.appendChild(newDiv);

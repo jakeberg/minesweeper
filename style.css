@@ -2,7 +2,9 @@ html {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-body {}
+body {
+    width: 100%;
+}
 
 header {
     font-size: 200%;
@@ -10,12 +12,19 @@ header {
     text-align: center;
     padding: 20px;
 }
+
 main {
-    width: 360px;
+    width: 500px;
+    height: 100px;
     margin: auto;
+    position: relative;
 }
 
-.bomb {
+img {
+    border: 1px solid black;
+}
+
+/* .bomb {
     width: 40px;
     height: 40px;
     background-image: url("assets/bomb.jpg");
@@ -30,4 +39,4 @@ main {
     border-radius: 2px;
     border-style: outset;
     border-width: 5px;
-}
+} */
