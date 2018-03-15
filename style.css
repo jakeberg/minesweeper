@@ -3,7 +3,7 @@ html {
 }
 
 body {
-    width: 100%;
+    width: 80%;
     display: flex;
     flex-direction: column;
 }
@@ -12,15 +12,12 @@ header {
     font-size: 200%;
     text-transform: uppercase;
     text-align: center;
-    padding: 20px;
 }
 
 #gameBoard {
-    width: 500px;
-    height: 100px;
-    margin: auto;
     position: relative;
-    display: flex;
+    top: 50px;
+    left: 100px;
 }
 
 img {
@@ -29,6 +26,13 @@ img {
 
 .difficulty {
     margin: auto;
-    padding: 20px;
     justify-content: space-around;
+    text-align: center;
+}
+
+#message {
+    display: none;
+    justify-content: space-around;
+    position: relative;
+    text-align: center;
 }
