@@ -5,40 +5,40 @@
     4. If bomb is clicked, game over and reveal all bombs.
     5. Allow users to add bombs and change size of board
 */
-var difficulty = 8;
-var bombs = 8;
-const easy = document.getElementById("easy").addEventListener("click", function () {
-    gameBoard.innerHTML = "";
-    difficulty = 8;
-    bombs = 8;
-    createBoard();
-});
-const medium = document.getElementById("medium").addEventListener("click", function () {
-    gameBoard.innerHTML = "";
-    difficulty = 10;
-    bombs = 10;
-    createBoard();
-});
-const hard = document.getElementById("hard").addEventListener("click", function () {
-    gameBoard.innerHTML = "";
-    difficulty = 15;
-    bombs = 15;
-    createBoard();
-});
 
 // Variables
-const resetButton = document.getElementById("reset").addEventListener("click", reset);
 const gameBoard = document.getElementById("gameBoard")
 const tileImages = ["assets/tile.jpg", "assets/tileEmpty.jpg", "assets/bomb.jpg", "assets/flag.png"];
-const bombPositionArray = [];
 let randomNumberArray = [];
-let coordinatesArray = [];
+var difficulty = 8;
+var bombs = 8;
 
+// Buttons
+const easy = document.getElementById("easy").addEventListener("click", function () {reset(8, 8);});
+const medium = document.getElementById("medium").addEventListener("click", function () {reset(10, 10);});
+const hard = document.getElementById("hard").addEventListener("click", function () {reset(15, 15);});
+const resetButton = document.getElementById("reset").addEventListener("click", function () {reset();});
+
+function reset(d, b) {
+    randomNumberArray = [];
+    gameBoard.innerHTML = "";
+    difficulty = d;
+    bombs = b;
+    randomizeNumbers();
+    createBoard();
+    createDataSets();
+    randomizeNumbers();
+}
+
+var sizeOfBoard = difficulty * difficulty;
 // Creates an array of ten random number to place bombs on board
-for (let i = 0; i <= bombs; i++) {
-    let randomNumber = Math.floor(Math.random() * Math.floor(difficulty * difficulty));
-    randomNumberArray.push(randomNumber)
-};
+function randomizeNumbers() {
+    for (let i = 0; i <= bombs; i++) {
+        let randomNumber = Math.floor(Math.random() * Math.floor(sizeOfBoard));
+        randomNumberArray.push(randomNumber);
+    };
+}
+randomizeNumbers();
 
 //Object constructor of a tile and it's click attributes
 function Tile(tileImages, board, x, y, num) {
@@ -82,7 +82,7 @@ function Tile(tileImages, board, x, y, num) {
 function createBoard() {
     let number = 0;
     for (let i = 0; i < difficulty; i++) {
-        
+
         for (let j = 0; j < difficulty; j++) {
             var x = j * 50;
             var y = i * 50;
@@ -94,21 +94,26 @@ function createBoard() {
 createBoard();
 
 // This makes a table where you can keep track of the bomb positions and the tile numbers
-var count = 0;
-for (let i = 0; i < difficulty; i++) {
-    let position = [];
-    let coordinates = [];
-    for (let j = 0; j < difficulty; j++) {
-        count++;
-        coordinates.push(count);
-        if (randomNumberArray.includes(count)) {
-            position.push(count);
-        } else {
-            position.push(null);
+function createDataSets() {
+    var bombPositionArray = [];
+    var coordinatesArray = [];
+    var count = 0;
+    for (let i = 0; i < difficulty; i++) {
+        let position = [];
+        let coordinates = [];
+        for (let j = 0; j < difficulty; j++) {
+            count++;
+            coordinates.push(count);
+            if (randomNumberArray.includes(count)) {
+                position.push(count);
+            } else {
+                position.push(null);
+            }
         }
+        bombPositionArray.push(position)
+        coordinatesArray.push(coordinates)
     }
-    bombPositionArray.push(position)
-    coordinatesArray.push(coordinates)
+    console.table(bombPositionArray)
+    console.table(coordinatesArray)
 }
-console.table(bombPositionArray)
-console.table(coordinatesArray)
+createDataSets();
