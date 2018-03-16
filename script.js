@@ -1,88 +1,139 @@
-/* TODO: 
-    1. Need a reveal function to check around cell clicked and show all empty tiles.
-    2. After the flag placement, if tile is clicked again, add a question mark
-    3. Find out if square is touching a bomb and give value to tile
-    4. If bomb is clicked, game over and reveal all bombs.
-    5. Allow users to add bombs and change size of board
-*/
-
 // Variables
 const gameBoard = document.getElementById("gameBoard")
-const tileImages = ["assets/tile.jpg", "assets/tileEmpty.jpg", "assets/bomb.jpg", "assets/flag.png"];
+const tileImages = ["assets/tile.jpg", "assets/bomb.jpg", "assets/flag.png"];
+const numberImages = ["assets/tileEmpty.jpg", "assets/numbers/num1.png", "assets/numbers/num2.png", "assets/numbers/num3.png", "assets/numbers/num4.png", "assets/numbers/num5.png", "assets/numbers/num6.png", "assets/numbers/num7.png", "assets/numbers/num8.png", ];
 let randomNumberArray = [];
 var difficulty = 8;
 var bombs = 8;
-
-// Buttons
-const easy = document.getElementById("easy").addEventListener("click", function () {reset(8, 8);});
-const medium = document.getElementById("medium").addEventListener("click", function () {reset(10, 10);});
-const hard = document.getElementById("hard").addEventListener("click", function () {reset(15, 15);});
-const resetButton = document.getElementById("reset").addEventListener("click", function () {reset();});
-
-function reset(d, b) {
-    randomNumberArray = [];
-    gameBoard.innerHTML = "";
-    difficulty = d;
-    bombs = b;
-    randomizeNumbers();
-    createBoard();
-    createDataSets();
-    randomizeNumbers();
-}
-
 var sizeOfBoard = difficulty * difficulty;
+var bombPositionArray = [];
+var coordinatesArray = [];
+
+// // // Buttons
+// const easy = document.getElementById("easy").addEventListener("click", function () {
+//     reset(8, 8);
+// });
+// const medium = document.getElementById("medium").addEventListener("click", function () {
+//     reset(10, 10);
+// });
+// const hard = document.getElementById("hard").addEventListener("click", function () {
+//     reset(15, 15);
+// });
+// const resetButton = document.getElementById("reset").addEventListener("click", function () {
+//     reset();
+// });
+
+// // Reset Function
+// function reset(d, b) {
+//     randomNumberArray = [];
+//     gameBoard.innerHTML = "";
+//     difficulty = d;
+//     bombs = b;
+//     randomizeNumbers();
+//     createBoard();
+// }
+
 // Creates an array of ten random number to place bombs on board
 function randomizeNumbers() {
-    for (let i = 0; i <= bombs; i++) {
-        let randomNumber = Math.floor(Math.random() * Math.floor(sizeOfBoard));
-        randomNumberArray.push(randomNumber);
-    };
+    while (randomNumberArray.length < 10) {
+        let randomNumber;
+        randomNumber = Math.floor(Math.random() * Math.floor(sizeOfBoard));
+        if (!randomNumberArray.includes(randomNumber)) {
+            randomNumberArray.push(randomNumber);
+        }
+    }
 }
 randomizeNumbers();
+console.log(randomNumberArray)
 
 //Object constructor of a tile and it's click attributes
-function Tile(tileImages, board, x, y, num) {
+function Tile(tileImages, board, x, y, tileNumber) {
 
-    this.img = document.createElement("img");
-    this.img.src = tileImages[0];
-    this.img.value = parseInt(num);
-    this.img.style.position = "absolute";
-    this.img.style.width = "50px";
-    this.img.style.height = "50px";
-    this.img.style.left = x + "px";
-    this.img.style.top = y + "px";
-    board.appendChild(this.img);
+    var img = document.createElement("img");
+    img.src = tileImages[0];
+    img.style.position = "absolute";
+    img.style.width = "50px";
+    img.style.height = "50px";
+    img.style.left = x + "px";
+    img.style.top = y + "px";
+    board.appendChild(img);
 
-    var clickedImage = this.img;
-    var newImage = this.images;
-    var newFrameCount = this.frame;
-    var tileNumber = parseInt(num);
+    checkTilesAroundBomb = function () {
+        var tempX;
+        var tempY;
 
-    checkTile = function () {
-        console.log(tileNumber);
+        for (let i = 0; i < coordinatesArray.length; i++) {
+            var coordRow = coordinatesArray[i];
+            for (let j = 0; j < coordRow.length; j++) {
+                coordCell = coordRow[j]
+                if (tileNumber == coordCell) {
+                    tempX = j;
+                    tempY = i;
+                }
+            }
+        }
+        var checker = {
+            left: () => (bombPositionArray[tempY] || [])[tempX - 1],
+            right: () => (bombPositionArray[tempY] || [])[tempX + 1],
+            top: () => (bombPositionArray[tempY - 1] || [])[tempX],
+            down: () => (bombPositionArray[tempY + 1] || [])[tempX],
+            topRight: () => (bombPositionArray[tempY - 1] || [])[tempX + 1],
+            topLeft: () => (bombPositionArray[tempY - 1] || [])[tempX - 1],
+            downRight: () => (bombPositionArray[tempY + 1] || [])[tempX + 1],
+            downLeft: () => (bombPositionArray[tempY + 1] || [])[tempX - 1],
+        }
+        let numberOfBombs = 0;
+
+        if (tempX < difficulty && tempX >= 0 && tempY < difficulty && tempY >= 0) {
+            var isLBomb = (checker.left() == "bomb") ? numberOfBombs++ : "";
+            var isRBomb = (checker.right() == "bomb") ? numberOfBombs++ : "";
+            var isTBomb = (checker.top() == "bomb") ? numberOfBombs++ : "";
+            var isDBomb = (checker.down() == "bomb") ? numberOfBombs++ : "";
+            var isTlBomb = (checker.topRight() == "bomb") ? numberOfBombs++ : "";
+            var isTRBomb = (checker.topLeft() == "bomb") ? numberOfBombs++ : "";
+            var isDlBomb = (checker.downLeft() == "bomb") ? numberOfBombs++ : "";
+            var isDRBomb = (checker.downRight() == "bomb") ? numberOfBombs++ : "";
+            img.src = numberImages[numberOfBombs];
+        }
+
         if (randomNumberArray.includes(tileNumber)) {
-            clickedImage.src = tileImages[2];
+            img.src = tileImages[1];
             document.getElementById("message").style.display = "block";
-        } else {
-            clickedImage.src = tileImages[1];
         }
     }
 
     flagBomb = function (event) {
         event.preventDefault();
-        clickedImage.src = newImage[3];
+        img.src = tileImages[2];
     }
 
-    this.img.addEventListener("click", checkTile);
-    this.img.addEventListener('contextmenu', flagBomb);
+    img.addEventListener("click", checkTilesAroundBomb);
+    img.addEventListener('contextmenu', flagBomb);
 }
 
+
+// This makes a table where you can keep track of the bomb positions and the tile numbers
+var count = 0;
+for (let i = 0; i < difficulty; i++) {
+    let position = [];
+    let coordinates = [];
+    for (let j = 0; j < difficulty; j++) {
+        count++;
+        coordinates.push(count);
+        if (randomNumberArray.includes(count)) {
+            position.push("bomb");
+        } else {
+            position.push(null);
+        }
+    }
+    bombPositionArray.push(position)
+    coordinatesArray.push(coordinates)
+}
 
 // Nested loops that make the game board
 function createBoard() {
     let number = 0;
     for (let i = 0; i < difficulty; i++) {
-
         for (let j = 0; j < difficulty; j++) {
             var x = j * 50;
             var y = i * 50;
@@ -90,30 +141,7 @@ function createBoard() {
             var tile = new Tile(tileImages, gameBoard, x, y, number);
         }
     }
+    console.table(bombPositionArray)
+console.log(coordinatesArray)
 }
 createBoard();
-
-// This makes a table where you can keep track of the bomb positions and the tile numbers
-function createDataSets() {
-    var bombPositionArray = [];
-    var coordinatesArray = [];
-    var count = 0;
-    for (let i = 0; i < difficulty; i++) {
-        let position = [];
-        let coordinates = [];
-        for (let j = 0; j < difficulty; j++) {
-            count++;
-            coordinates.push(count);
-            if (randomNumberArray.includes(count)) {
-                position.push(count);
-            } else {
-                position.push(null);
-            }
-        }
-        bombPositionArray.push(position)
-        coordinatesArray.push(coordinates)
-    }
-    console.table(bombPositionArray)
-    console.table(coordinatesArray)
-}
-createDataSets();
