@@ -47,55 +47,36 @@ randomizeNumbers();
 console.log(randomNumberArray)
 
 //Object constructor of a tile and it's click attributes
-function Tile(tileImages, board, x, y, tileNumber) {
-
+function Tile(tileImages, board, posX, posY, tileNumber, x, y) {
     var img = document.createElement("img");
     img.src = tileImages[0];
     img.style.position = "absolute";
     img.style.width = "50px";
     img.style.height = "50px";
-    img.style.left = x + "px";
-    img.style.top = y + "px";
+    img.style.left = posX + "px";
+    img.style.top = posY + "px";
     board.appendChild(img);
-
     checkTilesAroundBomb = function () {
-        var tempX;
-        var tempY;
+        var tempX = x;
+        var tempY = y;
+        console.log(tempX + "," + tempY)
 
-        for (let i = 0; i < coordinatesArray.length; i++) {
-            var coordRow = coordinatesArray[i];
-            for (let j = 0; j < coordRow.length; j++) {
-                coordCell = coordRow[j]
-                if (tileNumber == coordCell) {
-                    tempX = j;
-                    tempY = i;
-                }
-            }
-        }
         var checker = {
-            left: () => (bombPositionArray[tempY] || [])[tempX - 1],
-            right: () => (bombPositionArray[tempY] || [])[tempX + 1],
-            top: () => (bombPositionArray[tempY - 1] || [])[tempX],
-            down: () => (bombPositionArray[tempY + 1] || [])[tempX],
-            topRight: () => (bombPositionArray[tempY - 1] || [])[tempX + 1],
-            topLeft: () => (bombPositionArray[tempY - 1] || [])[tempX - 1],
-            downRight: () => (bombPositionArray[tempY + 1] || [])[tempX + 1],
-            downLeft: () => (bombPositionArray[tempY + 1] || [])[tempX - 1],
+            left: (bombPositionArray[tempY] || [])[tempX - 1],
+            right: (bombPositionArray[tempY] || [])[tempX + 1],
+            top: (bombPositionArray[tempY - 1] || [])[tempX],
+            down: (bombPositionArray[tempY + 1] || [])[tempX],
+            topRight: (bombPositionArray[tempY - 1] || [])[tempX + 1],
+            topLeft: (bombPositionArray[tempY - 1] || [])[tempX - 1],
+            downRight: (bombPositionArray[tempY + 1] || [])[tempX + 1],
+            downLeft: (bombPositionArray[tempY + 1] || [])[tempX - 1],
         }
+
         let numberOfBombs = 0;
-
-        if (tempX < difficulty && tempX >= 0 && tempY < difficulty && tempY >= 0) {
-            var isLBomb = (checker.left() == "bomb") ? numberOfBombs++ : "";
-            var isRBomb = (checker.right() == "bomb") ? numberOfBombs++ : "";
-            var isTBomb = (checker.top() == "bomb") ? numberOfBombs++ : "";
-            var isDBomb = (checker.down() == "bomb") ? numberOfBombs++ : "";
-            var isTlBomb = (checker.topRight() == "bomb") ? numberOfBombs++ : "";
-            var isTRBomb = (checker.topLeft() == "bomb") ? numberOfBombs++ : "";
-            var isDlBomb = (checker.downLeft() == "bomb") ? numberOfBombs++ : "";
-            var isDRBomb = (checker.downRight() == "bomb") ? numberOfBombs++ : "";
+        for (var checkFunction in checker) {
+            var isBomb = (checker[checkFunction] == "bomb") ? numberOfBombs++ : "";
             img.src = numberImages[numberOfBombs];
-        }
-
+          }
         if (randomNumberArray.includes(tileNumber)) {
             img.src = tileImages[1];
             document.getElementById("message").style.display = "block";
@@ -110,8 +91,6 @@ function Tile(tileImages, board, x, y, tileNumber) {
     img.addEventListener("click", checkTilesAroundBomb);
     img.addEventListener('contextmenu', flagBomb);
 }
-
-
 // This makes a table where you can keep track of the bomb positions and the tile numbers
 var count = 0;
 for (let i = 0; i < difficulty; i++) {
@@ -131,17 +110,14 @@ for (let i = 0; i < difficulty; i++) {
 }
 
 // Nested loops that make the game board
-function createBoard() {
     let number = 0;
     for (let i = 0; i < difficulty; i++) {
         for (let j = 0; j < difficulty; j++) {
-            var x = j * 50;
-            var y = i * 50;
+            var posX = j * 50;
+            var posY = i * 50;
+            var x = j;
+            var y = i;
             number++;
-            var tile = new Tile(tileImages, gameBoard, x, y, number);
+            var tile = new Tile(tileImages, gameBoard, posX, posY, number, x, y);
         }
     }
-    console.table(bombPositionArray)
-console.log(coordinatesArray)
-}
-createBoard();
