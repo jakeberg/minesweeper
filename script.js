@@ -56,11 +56,11 @@ function Tile(tileImages, board, posX, posY, tileNumber, x, y) {
     img.style.left = posX + "px";
     img.style.top = posY + "px";
     board.appendChild(img);
-    checkTilesAroundBomb = function () {
-        var tempX = x;
-        var tempY = y;
-        console.log(tempX + "," + tempY)
 
+    var tempX = x;
+    var tempY = y;
+
+    checkTilesAroundBomb = function () {
         var checker = {
             left: (bombPositionArray[tempY] || [])[tempX - 1],
             right: (bombPositionArray[tempY] || [])[tempX + 1],
@@ -75,8 +75,9 @@ function Tile(tileImages, board, posX, posY, tileNumber, x, y) {
         let numberOfBombs = 0;
         for (var checkFunction in checker) {
             var isBomb = (checker[checkFunction] == "bomb") ? numberOfBombs++ : "";
+            var isEmpty = (checker[checkFunction] == "null") ? : "";
             img.src = numberImages[numberOfBombs];
-          }
+        }
         if (randomNumberArray.includes(tileNumber)) {
             img.src = tileImages[1];
             document.getElementById("message").style.display = "block";
@@ -91,6 +92,7 @@ function Tile(tileImages, board, posX, posY, tileNumber, x, y) {
     img.addEventListener("click", checkTilesAroundBomb);
     img.addEventListener('contextmenu', flagBomb);
 }
+
 // This makes a table where you can keep track of the bomb positions and the tile numbers
 var count = 0;
 for (let i = 0; i < difficulty; i++) {
@@ -110,14 +112,14 @@ for (let i = 0; i < difficulty; i++) {
 }
 
 // Nested loops that make the game board
-    let number = 0;
-    for (let i = 0; i < difficulty; i++) {
-        for (let j = 0; j < difficulty; j++) {
-            var posX = j * 50;
-            var posY = i * 50;
-            var x = j;
-            var y = i;
-            number++;
-            var tile = new Tile(tileImages, gameBoard, posX, posY, number, x, y);
-        }
+let number = 0;
+for (let i = 0; i < difficulty; i++) {
+    for (let j = 0; j < difficulty; j++) {
+        var posX = j * 50;
+        var posY = i * 50;
+        var x = j;
+        var y = i;
+        number++;
+        var tile = new Tile(tileImages, gameBoard, posX, posY, number, x, y);
     }
+}
