@@ -2,7 +2,7 @@
 const gameBoard = document.getElementById("gameBoard")
 const flagsDiv = document.getElementById("flagNum")
 const numberImages = ["assets/tileEmpty.jpg", "assets/numbers/num1.png", "assets/numbers/num2.png", "assets/numbers/num3.png", "assets/numbers/num4.png", "assets/numbers/num5.png", "assets/numbers/num6.png", "assets/numbers/num7.png", "assets/numbers/num8.png", ];
-let randomNumberArray = [];
+var randomNumberArray = [];
 var difficulty = 8;
 var sizeOfBoard = difficulty * difficulty;
 var bombPositionArray = [];
@@ -48,13 +48,11 @@ function resetGame(d) {
 
 // Timer function
 var myTimer;
-
 function timer(interval, seconds) {
     clearInterval(myTimer);
     var timeDiv = document.getElementById("timer");
     myTimer = setInterval(count, interval);
     var totalSeconds = seconds;
-
     function count() {
         totalSeconds++;
         timeDiv.innerHTML = ":" + totalSeconds;
