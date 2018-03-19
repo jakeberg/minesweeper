@@ -1,41 +1,66 @@
-
 // Variables
 const gameBoard = document.getElementById("gameBoard")
-const tileImages = ["assets/tile.jpg", "assets/bomb.jpg", "assets/flag.png"];
+const flagsDiv = document.getElementById("flagNum")
 const numberImages = ["assets/tileEmpty.jpg", "assets/numbers/num1.png", "assets/numbers/num2.png", "assets/numbers/num3.png", "assets/numbers/num4.png", "assets/numbers/num5.png", "assets/numbers/num6.png", "assets/numbers/num7.png", "assets/numbers/num8.png", ];
 let randomNumberArray = [];
 var difficulty = 8;
 var sizeOfBoard = difficulty * difficulty;
 var bombPositionArray = [];
-var coordinatesArray = [];
+var flags;
 
-// // Buttons
-const easy = document.getElementById("easy").addEventListener("click", function () {
-    reset(8);
+
+// Buttons
+const easy = document.getElementById("easy");
+const medium = document.getElementById("medium");
+const hard = document.getElementById("hard");
+const resetButton = document.getElementById("reset");
+
+
+easy.addEventListener("click", function () {
+    resetGame(8);
 });
-const medium = document.getElementById("medium").addEventListener("click", function () {
-    reset(10);
+medium.addEventListener("click", function () {
+    resetGame(10);
 });
-const hard = document.getElementById("hard").addEventListener("click", function () {
-    reset(15);
+hard.addEventListener("click", function () {
+    resetGame(15);
 });
-const resetButton = document.getElementById("reset").addEventListener("click", function () {
-    reset(difficulty);
+resetButton.addEventListener("click", function () {
+    resetGame(difficulty);
 });
+
 
 // Reset Function
-function reset(d) {
+function resetGame(d) {
     gameBoard.innerHTML = "";
     randomNumberArray = [];
     bombPositionArray = [];
-    coordinatesArray = [];
     sizeOfBoard = d * d;
     difficulty = d;
+    flags = d;
     document.getElementById("message").style.display = "none";
     randomizeNumbers(d);
+    timer(1000, 0);
     data();
     createBoard(d);
 }
+
+
+// Timer function
+var myTimer;
+
+function timer(interval, seconds) {
+    clearInterval(myTimer);
+    var timeDiv = document.getElementById("timer");
+    myTimer = setInterval(count, interval);
+    var totalSeconds = seconds;
+
+    function count() {
+        totalSeconds++;
+        timeDiv.innerHTML = ":" + totalSeconds;
+    }
+}
+
 
 // Creates an array of ten random number to place bombs on board
 function randomizeNumbers(d) {
@@ -51,48 +76,68 @@ randomizeNumbers(difficulty);
 
 
 //Object constructor of a tile and it's click attributes
-function Tile(tileImages, board, posX, posY, tileNumber, x, y) {
-    var img = document.createElement("img");
-    img.src = tileImages[0];
-    img.style.position = "absolute";
-    img.className = 'tile';
-    img.style.left = posX + "px";
-    img.style.top = posY + "px";
-    board.appendChild(img);
+function Tile(board, posX, posY, tileNumber, x, y) {
+    var tile = document.createElement("div");
+    tile.style.backgroundImage = "url(assets/tile.jpg)"
+    tile.style.position = "absolute";
+    tile.classList = 'tile t' + tileNumber;
+    tile.style.left = posX + "px";
+    tile.style.top = posY + "px";
+    tile.dataset.row = x;
+    tile.dataset.col = y;
+    board.appendChild(tile);
 
-    var tempX = x;
-    var tempY = y;
+    var newX = x;
+    var newY = y
 
-    checkTilesAroundBomb = function () {
-        var checker = {
-            left: (bombPositionArray[tempY] || [])[tempX - 1],
-            right: (bombPositionArray[tempY] || [])[tempX + 1],
-            top: (bombPositionArray[tempY - 1] || [])[tempX],
-            down: (bombPositionArray[tempY + 1] || [])[tempX],
-            topRight: (bombPositionArray[tempY - 1] || [])[tempX + 1],
-            topLeft: (bombPositionArray[tempY - 1] || [])[tempX - 1],
-            downRight: (bombPositionArray[tempY + 1] || [])[tempX + 1],
-            downLeft: (bombPositionArray[tempY + 1] || [])[tempX - 1],
-        }
+    let checkTilesAroundBomb = function (tileSelected) {
 
+        // 1 -- placeholder so I can put back in some code
+
+        // Checks the positions in the bomb array
+        var checker = [
+            [(bombPositionArray[newY] || [])[newX - 1]],
+            [(bombPositionArray[newY] || [])[newX + 1]],
+            [(bombPositionArray[newY - 1] || [])[newX]],
+            [(bombPositionArray[newY + 1] || [])[newX]],
+            [(bombPositionArray[newY - 1] || [])[newX + 1]],
+            [(bombPositionArray[newY - 1] || [])[newX - 1]],
+            [(bombPositionArray[newY + 1] || [])[newX + 1]],
+            [(bombPositionArray[newY + 1] || [])[newX - 1]],
+        ]
+        // Marks how many bbombs clicked tile is touching
         let numberOfBombs = 0;
-        for (var checkFunction in checker) {
-            var isBomb = (checker[checkFunction] == "bomb") ? numberOfBombs++ : "";
-            // var isEmpty = (checker[checkFunction] == "null") ? : "";
-            img.src = numberImages[numberOfBombs];
+        for (var direction in checker) {
+            if (checker[direction] == "bomb") {
+                numberOfBombs++;
+            }
+            tile.style.backgroundImage = "url(" + numberImages[numberOfBombs] + ")";
         }
+        // 2 -- placeholder so I can put back in some code
+    }
+
+    // This checks to see if tile is a bomb and displays a bomb image
+    let explodeBomb = function () {
         if (randomNumberArray.includes(tileNumber)) {
-            img.src = tileImages[1];
+            tile.style.backgroundImage = "url(assets/bomb.jpg)";
             document.getElementById("message").style.display = "block";
         }
     }
 
-    flagBomb = function (event) {
+    // This flags the bombs
+    flagsDiv.innerText = flags;
+    let flagBomb = function (event) {
         event.preventDefault();
-        img.src = tileImages[2];
+        if (flags > 0) {
+            tile.style.backgroundImage = "url(assets/flag.png)";
+            flags--;
+            flagsDiv.innerText = flags;
+        }
     }
-    img.addEventListener("click", checkTilesAroundBomb);
-    img.addEventListener('contextmenu', flagBomb);
+
+    tile.addEventListener("click", checkTilesAroundBomb);
+    tile.addEventListener("click", explodeBomb);
+    tile.addEventListener('contextmenu', flagBomb);
 }
 
 // This makes a table where you can keep track of the bomb positions and the tile numbers
@@ -100,18 +145,15 @@ function data() {
     var count = 0;
     for (let i = 0; i < difficulty; i++) {
         let position = [];
-        let coordinates = [];
         for (let j = 0; j < difficulty; j++) {
             count++;
-            coordinates.push(count);
             if (randomNumberArray.includes(count)) {
                 position.push("bomb");
             } else {
-                position.push(null);
+                position.push(count);
             }
         }
         bombPositionArray.push(position)
-        coordinatesArray.push(coordinates)
     }
 }
 data();
@@ -126,8 +168,40 @@ function createBoard(difficulty) {
             var x = j;
             var y = i;
             number++;
-            var tile = new Tile(tileImages, gameBoard, posX, posY, number, x, y);
+            var tile = new Tile(gameBoard, posX, posY, number, x, y);
         }
     }
 }
-createBoard(difficulty);
+
+
+
+
+
+
+
+
+
+
+
+
+// 1
+// var queue = [];
+// queue.push(newX, newY)
+
+// while (queue.length > 0) {
+//     newY = queue.shift();
+//     newX = queue.shift();
+
+// 2
+//     for (var direction in checker) {
+//         if (checker[direction] != "bomb" ) {
+//             let cellNumber = checker[direction];
+//             let tileNear = board.querySelector(".t" + cellNumber)
+//             tileNear.style.backgroundImage = "url(assets/tileEmpty.jpg)";
+//             let tileNearRow = parseInt(tileNear.dataset.row);
+//             let tileNearCol = parseInt(tileNear.dataset.col);
+//             queue.push(tileNearRow, tileNearCol)
+//             // console.log(tileNearRow, tileNearCol)
+//         }
+//     }
+// }

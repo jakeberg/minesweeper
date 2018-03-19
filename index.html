@@ -1,33 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="style.css">
-    
+
     <title>Minesweeper</title>
 </head>
-<body>
-<main>
-    <header>
-        Minesweeper
-    </header>
 
-    <div class="difficulty">
+<body>
+    <main>
+        <header>
+            Minesweeper
+        </header>
+        <div class="difficulty">
+            <h1>Choose a game size:</h1>
             <button id="easy" type="button">Easy</button>
             <button id="medium" type="medium">Medium</button>
             <button id="hard" type="hard">Hard</button>
-    </div>
+            <h1>Time:</h1>
+            <h2 id="timer"></h2>
+            <h1>Flags:</h1>
+            <h2 id="flagNum"></h2>
+        </div>
 
-    <div id="gameBoard">
 
-    </div>
-    <div id="message">You are dead!<button id="reset" type="reset">Reset</button></div>
-</main>
+        <div id="gameBoard"></div>
+        <div id="message">You are dead!
+            <button id="reset" type="reset">Reset</button>
+        </div>
+    </main>
 
     <script src="script.js"></script>
 
     <!-- <script src="tilt.jquery.js"></script> -->
 </body>
+
 </html>
