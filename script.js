@@ -41,18 +41,20 @@ function resetGame(d) {
     document.getElementById("message").style.display = "none";
     randomizeNumbers(d);
     timer(1000, 0);
-    data();
+    // data();
     createBoard(d);
 }
 
 
 // Timer function
 var myTimer;
+
 function timer(interval, seconds) {
     clearInterval(myTimer);
     var timeDiv = document.getElementById("timer");
     myTimer = setInterval(count, interval);
     var totalSeconds = seconds;
+
     function count() {
         totalSeconds++;
         timeDiv.innerHTML = ":" + totalSeconds;
@@ -83,39 +85,68 @@ function Tile(board, posX, posY, tileNumber, x, y) {
     tile.style.top = posY + "px";
     tile.dataset.row = x;
     tile.dataset.col = y;
+    if (randomNumberArray.includes(tileNumber)) {
+        tile.dataset.bombNum = "bomb"
+    }
+
     board.appendChild(tile);
 
-    var newX = x;
-    var newY = y
 
-    let checkTilesAroundBomb = function (tileSelected) {
 
-        // 1 -- placeholder so I can put back in some code
+    checkTilesAroundBomb = function (event) {
 
-        // Checks the positions in the bomb array
-        var checker = [
-            [(bombPositionArray[newY] || [])[newX - 1]],
-            [(bombPositionArray[newY] || [])[newX + 1]],
-            [(bombPositionArray[newY - 1] || [])[newX]],
-            [(bombPositionArray[newY + 1] || [])[newX]],
-            [(bombPositionArray[newY - 1] || [])[newX + 1]],
-            [(bombPositionArray[newY - 1] || [])[newX - 1]],
-            [(bombPositionArray[newY + 1] || [])[newX + 1]],
-            [(bombPositionArray[newY + 1] || [])[newX - 1]],
-        ]
-        // Marks how many bbombs clicked tile is touching
-        let numberOfBombs = 0;
-        for (var direction in checker) {
-            if (checker[direction] == "bomb") {
-                numberOfBombs++;
-            }
-            tile.style.backgroundImage = "url(" + numberImages[numberOfBombs] + ")";
-        }
-        // 2 -- placeholder so I can put back in some code
+        let clickedTile = event.target;
+        let row = clickedTile.dataset.row;
+        let col = clickedTile.dataset.col
+
+        // var queue = [];
+        // queue.push(x, y)
+
+        // while (queue.length > 0) {
+            // newY = queue.shift();
+            // newX = queue.shift();
+
+            // Checks the positions in the bomb array
+            let checker = [
+                {y, (x -1)},
+                {y, (x + 1)},
+                {(y-1), x}
+                [(bombPositionArray[newY - 1] || [])[newX]],
+                [(bombPositionArray[newY + 1] || [])[newX]],
+                [(bombPositionArray[newY - 1] || [])[newX + 1]],
+                [(bombPositionArray[newY - 1] || [])[newX - 1]],
+                [(bombPositionArray[newY + 1] || [])[newX + 1]],
+                [(bombPositionArray[newY + 1] || [])[newX - 1]],
+            ]
+
+            // Marks how many bombs clicked tile is touching
+            let numberOfBombs = 0;
+            let tileNear;
+            let tileNearRow;
+            let tileNearCol;
+            // for (var direction in checker) {
+            //     if(!checker[direction]) return;
+
+            //     if (checker[direction] == "bomb") {
+            //         numberOfBombs++;
+            //         tile.style.backgroundImage = "url(" + numberImages[numberOfBombs] + ")";
+            //     } else if (checker[direction] != "bomb") {
+            //         let cellNumber = checker[direction];
+            //         tileNear = board.querySelector(".t" + cellNumber);
+            //         tileNearRow = parseInt(tileNear.dataset.row);
+            //         tileNearCol = parseInt(tileNear.dataset.col);
+            //         queue.push(tileNearRow, tileNearCol)
+            //         tileNear.style.backgroundImage = "url(" + numberImages[numberOfBombs] + ")";
+            //     }
+            //     console.log(tileNearRow, tileNearCol)
+            
+            // }
+        // }
+        console.log(clickedTileRow)
     }
 
     // This checks to see if tile is a bomb and displays a bomb image
-    let explodeBomb = function () {
+    explodeBomb = function () {
         if (randomNumberArray.includes(tileNumber)) {
             tile.style.backgroundImage = "url(assets/bomb.jpg)";
             document.getElementById("message").style.display = "block";
@@ -138,23 +169,23 @@ function Tile(board, posX, posY, tileNumber, x, y) {
     tile.addEventListener('contextmenu', flagBomb);
 }
 
-// This makes a table where you can keep track of the bomb positions and the tile numbers
-function data() {
-    var count = 0;
-    for (let i = 0; i < difficulty; i++) {
-        let position = [];
-        for (let j = 0; j < difficulty; j++) {
-            count++;
-            if (randomNumberArray.includes(count)) {
-                position.push("bomb");
-            } else {
-                position.push(count);
-            }
-        }
-        bombPositionArray.push(position)
-    }
-}
-data();
+// // This makes a table where you can keep track of the bomb positions and the tile numbers
+// function data() {
+//     var count = 0;
+//     for (let i = 0; i < difficulty; i++) {
+//         let position = [];
+//         for (let j = 0; j < difficulty; j++) {
+//             count++;
+//             if (randomNumberArray.includes(count)) {
+//                 position.push("bomb");
+//             } else {
+//                 position.push(count);
+//             }
+//         }
+//         bombPositionArray.push(position)
+//     }
+// }
+// data();
 
 // Nested loops that make the game board
 function createBoard(difficulty) {
@@ -169,37 +200,10 @@ function createBoard(difficulty) {
             var tile = new Tile(gameBoard, posX, posY, number, x, y);
         }
     }
+    console.log(randomNumberArray)
 }
 
 
+// use foreach for array of objects
 
-
-
-
-
-
-
-
-
-
-// 1
-// var queue = [];
-// queue.push(newX, newY)
-
-// while (queue.length > 0) {
-//     newY = queue.shift();
-//     newX = queue.shift();
-
-// 2
-//     for (var direction in checker) {
-//         if (checker[direction] != "bomb" ) {
-//             let cellNumber = checker[direction];
-//             let tileNear = board.querySelector(".t" + cellNumber)
-//             tileNear.style.backgroundImage = "url(assets/tileEmpty.jpg)";
-//             let tileNearRow = parseInt(tileNear.dataset.row);
-//             let tileNearCol = parseInt(tileNear.dataset.col);
-//             queue.push(tileNearRow, tileNearCol)
-//             // console.log(tileNearRow, tileNearCol)
-//         }
-//     }
-// }
+// get cell by query selector 
