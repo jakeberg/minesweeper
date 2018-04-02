@@ -68,7 +68,7 @@ function timer(interval, seconds) {
 
 // Creates an array of ten random number to place bombs on board
 function randomizeNumbers(d) {
-    while (randomNumberArray.length <= d) {
+    while (randomNumberArray.length < d) {
         let randomNumber;
         randomNumber = Math.floor(Math.random() * Math.floor(sizeOfBoard));
         if (!randomNumberArray.includes(randomNumber)) {
