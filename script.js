@@ -6,8 +6,9 @@ var randomNumberArray = [];
 var difficulty = 8;
 var sizeOfBoard = difficulty * difficulty;
 var bombPositionArray = [];
-var flags;
-
+var flags = 0;
+var bombChecked = 0;
+var messageDiv = document.getElementById("message");
 
 // Buttons
 const easy = document.getElementById("easy");
@@ -41,9 +42,11 @@ function resetGame(d) {
     document.getElementById("message").style.display = "none";
     randomizeNumbers(d);
     timer(1000, 0);
-    createGameMap();
+    createBombPositionArray();
     createBoard(d);
     placeNumber();
+    messageDiv.style.display = "none";
+    messageDiv.innerHTML = "";
 }
 
 
@@ -52,9 +55,9 @@ var myTimer;
 
 function timer(interval, seconds) {
     clearInterval(myTimer);
-    var timeDiv = document.getElementById("timer");
+    let timeDiv = document.getElementById("timer");
     myTimer = setInterval(count, interval);
-    var totalSeconds = seconds;
+    let totalSeconds = seconds;
 
     function count() {
         totalSeconds++;
@@ -65,7 +68,7 @@ function timer(interval, seconds) {
 
 // Creates an array of ten random number to place bombs on board
 function randomizeNumbers(d) {
-    while (randomNumberArray.length < d) {
+    while (randomNumberArray.length <= d) {
         let randomNumber;
         randomNumber = Math.floor(Math.random() * Math.floor(sizeOfBoard));
         if (!randomNumberArray.includes(randomNumber)) {
@@ -78,6 +81,8 @@ randomizeNumbers(difficulty);
 
 //Object constructor of a tile and it's click attributes
 function Tile(board, posX, posY, tileNumber, x, y) {
+
+    // All data associated with each Tile object
     let tile = document.createElement("div");
     tile.dataset.clickState = "unclicked";
     tile.style.backgroundImage = "url(assets/tile.jpg)"
@@ -91,20 +96,20 @@ function Tile(board, posX, posY, tileNumber, x, y) {
     if (randomNumberArray.includes(tileNumber)) {
         tile.classList.add("bomb");
     }
-
+    // Appends all tiles to the board
     board.appendChild(tile);
 
+    // Clicks an open tile and flood fills the rest of the board
     clickOpenTiles = function (event) {
-        let clickedTile = event.target;
+        let selectedTile = event.target;
+        let clicked = selectedTile.dataset.clickState;
 
-        let clicked = clickedTile.dataset.clickState;
-        if (clicked == "unclicked") {
-            clickedTile.dataset.clickState = "clicked";
-            let row = parseInt(clickedTile.dataset.row);
-            let col = parseInt(clickedTile.dataset.col);
+        if (clicked == "unclicked" && !selectedTile.classList.contains("flagged")) {
+            selectedTile.dataset.clickState = "clicked";
+            let row = parseInt(selectedTile.dataset.row);
+            let col = parseInt(selectedTile.dataset.col);
             let bombsTouchingTile = bombPositionArray[row][col];
-            clickedTile.style.backgroundImage = "url(" + numberImages[bombsTouchingTile] + ")";
-            console.log(row, col)
+            selectedTile.style.backgroundImage = "url(" + numberImages[bombsTouchingTile] + ")";
 
             if (bombsTouchingTile == 0 && (col - 1) >= 0 && (col - 1) < difficulty && row >= 0 && row < difficulty) {
                 document.querySelector(`[data-col="${col - 1}"][data-row="${row}"]`).click();
@@ -133,37 +138,64 @@ function Tile(board, posX, posY, tileNumber, x, y) {
         }
     }
 
-    // This checks to see if tile is a bomb and displays a bomb image
-    explodeBomb = function (event) {
-        let clickedTile = event.target;
-
-        if (randomNumberArray.includes(tileNumber)) {
-            clickedTile.style.backgroundImage = "url(assets/bomb.jpg)";
-            document.getElementById("message").style.display = "block";
-            let allBombs = document.querySelectorAll('[data-number="bomb"]');
-            allBombs.style.backgroundImage = "url(assets/bomb.jpg)";
+    // Flags the bombs
+    flagsDiv.innerText = flags;
+    flagBomb = function (event) {
+        event.preventDefault();
+        let selectedTile = event.target;
+        if (selectedTile.classList.contains("flagged")) {
+            selectedTile.style.backgroundImage = "url(assets/tile.jpg)";
+            flags++
+            flagsDiv.innerText = flags;
+            selectedTile.classList.remove("flagged");
+        } else if (flags > 0) {
+            selectedTile.style.backgroundImage = "url(assets/flag.png)";
+            flags--;
+            flagsDiv.innerText = flags;
+            selectedTile.classList.add("flagged");
         }
     }
 
-    // This flags the bombs
-    flagsDiv.innerText = flags;
-    let flagBomb = function (event) {
+    // Checks to see how many bombs have been flagged correctly
+    countBomb = function (event) {
         event.preventDefault();
-        if (flags > 0) {
-            tile.style.backgroundImage = "url(assets/flag.png)";
-            flags--;
-            flagsDiv.innerText = flags;
+        let selectedTile = event.target;
+        if (selectedTile.classList.contains("bombChecked")) {
+            bombChecked--;
+            selectedTile.classList.remove("bombChecked");
+        } else if (randomNumberArray.includes(tileNumber)) {
+            bombChecked++;
+            selectedTile.classList.add("bombChecked");
+        }
+        // Win Condition
+        if (bombChecked == difficulty) {
+            messageDiv.innerHTML = "You win!"
+            messageDiv.style.display = "block";
+        }
+    }
+
+    // This checks to see if tile is a bomb and displays a bomb image/ player loses game
+    explodeBomb = function (event) {
+        let selectedTile = event.target;
+        if (randomNumberArray.includes(tileNumber)) {
+            selectedTile.style.backgroundImage = "url(assets/bomb.jpg)";
+            messageDiv.innerHTML = "You lose! "
+            messageDiv.style.display = "block";
+            let allBombs = document.querySelectorAll(".bomb");
+            for (let bombs in allBombs) {
+                allBombs[bombs].style.backgroundImage = "url(assets/bomb.jpg)";
+            }
         }
     }
 
     tile.addEventListener("click", clickOpenTiles);
     tile.addEventListener("click", explodeBomb);
     tile.addEventListener('contextmenu', flagBomb);
-
+    tile.addEventListener('contextmenu', countBomb);
 }
 
 // This makes a table where you can keep track of the bomb positions and the tile numbers
-function createGameMap() {
+function createBombPositionArray() {
     let count = 0;
     for (let i = 0; i < difficulty; i++) {
         let position = [];
@@ -178,16 +210,17 @@ function createGameMap() {
         bombPositionArray.push(position)
     }
 }
-createGameMap();
+createBombPositionArray();
 
+// Loops through the bombPositionArray and assigns numbers to any cell touching a bomb
 function placeNumber() {
     for (let x = 0; x < bombPositionArray.length; x++) {
         let row = bombPositionArray[x];
         for (let y = 0; y < row.length; y++) {
             let numberOfBombs = 0;
             let tileCheck = {
-                left: bombPositionArray[y][x - 1],
-                right: bombPositionArray[y][x + 1],
+                left: (bombPositionArray[y] || [])[x - 1],
+                right: (bombPositionArray[y] || [])[x + 1],
                 above: (bombPositionArray[y - 1] || [])[x],
                 below: (bombPositionArray[y + 1] || [])[x],
                 upLeft: (bombPositionArray[y - 1] || [])[x - 1],
@@ -205,8 +238,6 @@ function placeNumber() {
             }
         }
     }
-    // console.table(bombPositionArray)
-
 }
 placeNumber();
 
